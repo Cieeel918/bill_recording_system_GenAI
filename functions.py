@@ -5,6 +5,8 @@ from openai import OpenAI
 from datetime import datetime
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
 import plotly.express as px
+import os
+
 
 def prepare_prompt(user_prompt,history_info):
     '''收入多少，各类型支出多少，'''
@@ -45,6 +47,7 @@ def prepare_prompt(user_prompt,history_info):
 
 
 def chat_with_gpt(user_input):
+    
     '''
     description: 
         this function call openai api to make users able to interact with chatgpt within this website
@@ -57,7 +60,7 @@ def chat_with_gpt(user_input):
 
     '''
     client = OpenAI(
-    api_key=api_key,
+    api_key=os.getenv("api_key"),
     )
     conversation = [{"role": "system", "content": "You are a helpful assistant. And you need to give the user detailed financial plan to achieve his goal."}]
     try:
