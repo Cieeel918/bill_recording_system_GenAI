@@ -57,7 +57,7 @@ dash_app = dash.Dash(__name__, server=app, url_base_pathname='/analysis/')
 
 
 
-df = load_data()
+df = load_data(CSV_PATH)
 
 # 计算月度收入和支出
 def get_monthly_summary(df):

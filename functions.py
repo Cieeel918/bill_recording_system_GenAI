@@ -79,7 +79,7 @@ def chat_with_gpt(user_input):
 
 
 
-def load_data():
+def load_data(CSV_PATH):
     if os.path.exists(CSV_PATH):
         return pd.read_csv(CSV_PATH)
     else:
