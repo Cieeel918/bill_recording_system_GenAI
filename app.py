@@ -105,7 +105,7 @@ def analysis():
 
 @app.route('/suggestion',methods=["GET","POST"])
 def suggestion():
-    user_history = create_sample_data()
+    user_history = load_data()
     generated_text = None
     a = ""
     if request.method == "POST":
