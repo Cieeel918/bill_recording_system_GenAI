@@ -6,7 +6,7 @@ import seaborn as sns
 import openai
 from dash import Dash,dcc, html, Input, Output
 import plotly.express as px
-from functions import load_data, get_monthly_summary, get_month_type_data,prepare_prompt,chat_with_gpt
+from functions import *
 from datetime import datetime
 import os
 
@@ -105,7 +105,7 @@ def analysis():
 
 @app.route('/suggestion',methods=["GET","POST"])
 def suggestion():
-    user_history = pd.read_csv('user_annual_bill_data.csv')
+    user_history = create_sample_data()
     generated_text = None
     a = ""
     if request.method == "POST":
