@@ -51,9 +51,7 @@ def home():
 
     return render_template('home.html')
 
-@app.route('/analysis')
-def analysis():
-    return render_template('analysis.html')
+
 
 dash_app = dash.Dash(__name__, server=app, url_base_pathname='/dash/')
 
@@ -143,6 +141,10 @@ def update_pie_chart(selected_month, selected_category):
 
     fig = px.pie(filtered_df, names='type', values='amount', title="Spending by Category")
     return fig
+
+@app.route('/analysis')
+def analysis():
+    return render_template('analysis.html')
 
 
 @app.route('/suggestion',methods=["GET","POST"])
