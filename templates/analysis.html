@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Annual Analysis</title>
+    </head>
+    <body>
+        <div style="position: absolute; top: 10px; left: 10px;">
+            <a href="/" style="text-decoration: none;">
+                <button style="padding: 5px 15px;">back to main</button>
+            </a>
+        </div>
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+
+        <a href="{{ url_for('home') }}">
+            <button type="button">返回主页</button>
+        </a>
+    </body>
+</html>

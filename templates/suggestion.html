@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Suggestion</title>
+</head>
+<body>
+    <h1>AI Suggestion</h1>
+
+    <form method="POST">
+        <label for="user_prompt">Please enter your financial goals:</label><br>
+        <textarea id="user_prompt" name="user_prompt" rows="4" cols="50">{{ user_prompt or '' }}</textarea><br><br>
+        <input type="submit" value="Submit">
+    </form>
+
+    {% if message %}
+        <p style="color: red;">{{ message }}</p>
+    {% endif %}
+
+    {% if generated_text %}
+        <h2>Suggestion From AI：</h2>
+        <p>{{ generated_text }}</p>
+    {% endif %}
+
+    <!-- 添加返回按钮 -->
+    <br><br>
+    <a href="{{ url_for('home') }}">
+        <button type="button">Go Back</button>
+    </a>
+</body>
+</html>
+

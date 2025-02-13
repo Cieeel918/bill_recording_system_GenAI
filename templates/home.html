@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Budget Tracker</title>
+</head>
+<body>
+    <h1>Daily Budget Tracker</h1>
+    <form action="/" method="POST">
+        <label for="income_or_spending">Income or Spending:</label>
+        <select name="income_or_spending" id="income_or_spending" onchange="updateTypeOptions(this.value)">
+          <option value="1">Income</option>
+          <option value="0">Spending</option>
+        </select>
+        
+        <br><br>
+        <label for="type">Type:</label>
+        <select name="type" id="type">
+        </select>
+
+        <br><br>
+        <label for="amount">Amount:  $</label>
+        <input type="number" name="amount" id="amount" step="0.01" placeholder="e.g. 1234.56" required style="appearance: textfield;">
+        
+        <button type="submit">Submit</button>
+    </form>
+
+    <br>
+    <a href="/analysis/"><button>Go to Analysis</button></a>
+    <a href="/suggestion"><button>Go to Suggestion</button></a>
+
+
+    <script>
+        function updateTypeOptions(value) {
+          const typeSelect = document.getElementById('type');
+          typeSelect.innerHTML = '';
+          let options = [];
+          
+          if (value === '1') {
+            options = ['Salary', 'Bonus', 'Gift', 'Investment'];
+          } else {
+            options = ['Entertainment', 'Rent', 'Food', 'Shopping','Transport','Healthcare'];
+          }
+    
+          options.forEach(option => {
+            const opt = document.createElement('option');
+            opt.value = option;
+            opt.textContent = option;
+            typeSelect.appendChild(opt);
+          });
+        }
+    
+        updateTypeOptions('1');
+      </script>
+    </body>
+    </html>
