@@ -53,13 +53,9 @@ def home():
 
 
 
-dash_app = dash.Dash(__name__, server=app, url_base_pathname='/dash/')
+dash_app = dash.Dash(__name__, server=app, url_base_pathname='/analysis/')
 
-def load_data():
-    if os.path.exists(CSV_PATH):
-        return pd.read_csv(CSV_PATH)
-    else:
-        return pd.DataFrame(columns=['timestamp', 'income_or_spending', 'type', 'amount'])
+
 
 df = load_data()
 
