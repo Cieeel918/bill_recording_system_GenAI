@@ -9,30 +9,33 @@ import plotly.express as px
 from functions import *
 from datetime import datetime
 import os
+import dash
+
+
 
 app = Flask(__name__)
-dashapp = Dash(__name__, server=app, url_base_pathname="/analysis/", suppress_callback_exceptions=True)
 
-user_history = pd.DataFrame(columns=['timestamp','income_or_spending', 'type', 'amount'])
-# existed_data = pd.read_csv("user_annual_bill_data.csv")
-# user_history = pd.concat([user_history,existed_data],axis=0)
+# 定义 CSV 存储路径
+CSV_PATH = "/mnt/data/user_history.csv"
 
-@app.route('/',methods=["GET","POST"])
+# 确保 CSV 文件存在，并加载数据
+if os.path.exists(CSV_PATH):
+    user_history = pd.read_csv(CSV_PATH)
+else:
+    user_history = pd.DataFrame(columns=['timestamp', 'income_or_spending', 'type', 'amount'])
+
+@app.route('/', methods=["GET", "POST"])
 def home():
-    """
-    允许用户输入信息，保存到user_history这个dataframe里面
-    允许多次输入信息
-    允许跳转另外两个页面
-    """
     global user_history
-    if request.method == "POST":
     
+    if request.method == "POST":
+        # 获取用户输入
         income_or_spending = int(request.form['income_or_spending'])
         transaction_type = request.form['type']
         amount = float(request.form['amount'])
-        timestamp = datetime.now().strftime('%Y/%m/%d')
+        timestamp = datetime.now().strftime('%Y-%m-%d')
 
-        
+        # 生成新数据
         new_entry = pd.DataFrame({
             'timestamp': [timestamp],
             'income_or_spending': [income_or_spending],
@@ -40,19 +43,50 @@ def home():
             'amount': [amount]
         })
 
-        user_history = pd.concat([user_history,new_entry],ignore_index = True)
-        #print(user_history)
+        # 追加到全局 DataFrame
+        user_history = pd.concat([user_history, new_entry], ignore_index=True)
+
+        # **将数据存储到 CSV（追加模式）**
+        user_history.to_csv(CSV_PATH, index=False)
 
     return render_template('home.html')
 
+@app.route('/analysis')
+def analysis():
+    return render_template('analysis.html')
+
+dash_app = dash.Dash(__name__, server=app, url_base_pathname='/dash/')
+
+def load_data():
+    if os.path.exists(CSV_PATH):
+        return pd.read_csv(CSV_PATH)
+    else:
+        return pd.DataFrame(columns=['timestamp', 'income_or_spending', 'type', 'amount'])
+
 df = load_data()
-# df = user_history
+
+# 计算月度收入和支出
+def get_monthly_summary(df):
+    if df.empty:
+        return pd.DataFrame(columns=['month', 'income', 'spending'])
+    
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df['month'] = df['timestamp'].dt.month
+
+    summary = df.groupby('month').agg(
+        income=('amount', lambda x: x[df['income_or_spending'] == 1].sum()),
+        spending=('amount', lambda x: x[df['income_or_spending'] == 0].sum())
+    ).reset_index()
+    
+    return summary
+
 monthly_summary = get_monthly_summary(df)
 
-dashapp.layout = html.Div([
+# 设置 Dash 页面
+dash_app.layout = html.Div([
     html.H1("Annual Bill Analysis", style={'textAlign': 'center'}),
-    
-    # 图表1：静态月度柱状图
+
+    # 月度柱状图
     dcc.Graph(
         id='monthly-bar',
         figure=px.bar(
@@ -64,10 +98,10 @@ dashapp.layout = html.Div([
             barmode='group'
         )
     ),
-    
+
     html.Hr(),
-    
-    # 图表2：动态饼图
+
+    # 选择月份和类别
     html.Div([
         dcc.Dropdown(
             id='month-selector',
@@ -88,19 +122,27 @@ dashapp.layout = html.Div([
     ])
 ])
 
-@dashapp.callback(
-    Output('type-pie', 'figure'),
-    [Input('month-selector', 'value'),
-    Input('category-selector', 'value')]
+# Dash 交互逻辑
+@dash_app.callback(
+    dash.dependencies.Output('type-pie', 'figure'),
+    [dash.dependencies.Input('month-selector', 'value'),
+     dash.dependencies.Input('category-selector', 'value')]
 )
-def update_pie(month, category):
-    data = get_month_type_data(df, month, category)
-    title = f'{"Income" if category else "Spending"} Types - Month {month}'
-    return px.pie(data, values='amount', names='type', title=title)
+def update_pie_chart(selected_month, selected_category):
+    df = load_data()
+    if df.empty:
+        return {}
 
-@app.route('/analysis/',methods=["GET","POST"])
-def analysis():
-    return render_template('analysis.html')
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df['month'] = df['timestamp'].dt.month
+
+    filtered_df = df[(df['month'] == selected_month) & (df['income_or_spending'] == selected_category)]
+    
+    if filtered_df.empty:
+        return {}
+
+    fig = px.pie(filtered_df, names='type', values='amount', title="Spending by Category")
+    return fig
 
 
 @app.route('/suggestion',methods=["GET","POST"])

@@ -1,23 +1,30 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Annual Analysis</title>
-    </head>
-    <body>
-        <div style="position: absolute; top: 10px; left: 10px;">
-            <a href="/" style="text-decoration: none;">
-                <button style="padding: 5px 15px;">back to main</button>
-            </a>
-        </div>
-        {%app_entry%}
-        <footer>
-            {%config%}
-            {%scripts%}
-        </footer>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annual Analysis</title>
+</head>
+<body>
 
-        <a href="{{ url_for('home') }}">
-            <button type="button">back to main site</button>
+    <div style="position: absolute; top: 10px; left: 10px;">
+        <a href="/" style="text-decoration: none;">
+            <button style="padding: 5px 15px;">Back to Main</button>
         </a>
+    </div>
+
+    <h1 style="text-align: center;">Annual Bill Analysis</h1>
+
+    <!-- Dash App -->
+    <div>
+        {%app_entry%}
+    </div>
+
+    <footer>
+        {%config%}
+        {%scripts%}
         {%renderer%}
-    </body>
+    </footer>
+
+</body>
 </html>
