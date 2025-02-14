@@ -59,6 +59,7 @@ dashapp = Dash(__name__, server=app, url_base_pathname="/analysis/", suppress_ca
 
 #timestamp,income_or_spending,type,amount
 df = load_data(CSV_PATH)
+
 monthly_summary = get_monthly_summary(df)
 
 dashapp.layout = html.Div([

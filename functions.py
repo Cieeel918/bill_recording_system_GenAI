@@ -81,7 +81,10 @@ def chat_with_gpt(user_input):
 def load_data(CSV_PATH):
     try:
         if os.path.exists(CSV_PATH):
-            return pd.read_csv(CSV_PATH)
+            df = pd.read_csv(CSV_PATH)
+            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            df['month'] = df['timestamp'].dt.month
+            return df
         else:
             return pd.DataFrame(columns=['timestamp', 'income_or_spending', 'type', 'amount'])
     except Exception as e:
