@@ -146,7 +146,7 @@ def analysis():
 
 @app.route('/suggestion',methods=["GET","POST"])
 def suggestion():
-    user_history = load_data()
+    user_history = load_data(CSV_PATH)
     generated_text = None
     a = ""
     if request.method == "POST":
