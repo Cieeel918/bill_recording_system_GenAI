@@ -54,34 +54,17 @@ def home():
 
 
 
-dash_app = Dash(__name__, server=app, routes_pathname_prefix='/dash/', requests_pathname_prefix='/dash/')
+dashapp = Dash(__name__, server=app, url_base_pathname="/analysis/", suppress_callback_exceptions=True)
 
 
-
+#timestamp,income_or_spending,type,amount
 df = load_data(CSV_PATH)
-
-# 计算月度收入和支出
-def get_monthly_summary(df):
-    if df.empty:
-        return pd.DataFrame(columns=['month', 'income', 'spending'])
-    
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
-    df['month'] = df['timestamp'].dt.month
-
-    summary = df.groupby('month').agg(
-        income=('amount', lambda x: x[df['income_or_spending'] == 1].sum()),
-        spending=('amount', lambda x: x[df['income_or_spending'] == 0].sum())
-    ).reset_index()
-    
-    return summary
-
 monthly_summary = get_monthly_summary(df)
 
-# 设置 Dash 页面
-dash_app.layout = html.Div([
+dashapp.layout = html.Div([
     html.H1("Annual Bill Analysis", style={'textAlign': 'center'}),
-
-    # 月度柱状图
+    
+    # 图表1：静态月度柱状图
     dcc.Graph(
         id='monthly-bar',
         figure=px.bar(
@@ -93,10 +76,10 @@ dash_app.layout = html.Div([
             barmode='group'
         )
     ),
-
+    
     html.Hr(),
-
-    # 选择月份和类别
+    
+    # 图表2：动态饼图
     html.Div([
         dcc.Dropdown(
             id='month-selector',
@@ -117,31 +100,19 @@ dash_app.layout = html.Div([
     ])
 ])
 
-# Dash 交互逻辑
-@dash_app.callback(
-    dash.dependencies.Output('type-pie', 'figure'),
-    [dash.dependencies.Input('month-selector', 'value'),
-     dash.dependencies.Input('category-selector', 'value')]
+@dashapp.callback(
+    Output('type-pie', 'figure'),
+    [Input('month-selector', 'value'),
+    Input('category-selector', 'value')]
 )
-def update_pie_chart(selected_month, selected_category,CSV_PATH):
-    df = load_data(CSV_PATH)
-    if df.empty:
-        return {}
+def update_pie(month, category):
+    data = get_month_type_data(df, month, category)
+    title = f'{"Income" if category else "Spending"} Types - Month {month}'
+    return px.pie(data, values='amount', names='type', title=title)
 
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
-    df['month'] = df['timestamp'].dt.month
-
-    filtered_df = df[(df['month'] == selected_month) & (df['income_or_spending'] == selected_category)]
-    
-    if filtered_df.empty:
-        return {}
-
-    fig = px.pie(filtered_df, names='type', values='amount', title="Spending by Category")
-    return fig
-
-@app.route('/analysis')
+@app.route('/analysis/',methods=["GET","POST"])
 def analysis():
-    return redirect('/dash/')
+    return render_template('analysis.html')
 
 
 @app.route('/suggestion',methods=["GET","POST"])
