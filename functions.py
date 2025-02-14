@@ -78,12 +78,16 @@ def chat_with_gpt(user_input):
         print("error")
 
 
-
 def load_data(CSV_PATH):
-    if os.path.exists(CSV_PATH):
-        return pd.read_csv(CSV_PATH)
-    else:
+    try:
+        if os.path.exists(CSV_PATH):
+            return pd.read_csv(CSV_PATH)
+        else:
+            return pd.DataFrame(columns=['timestamp', 'income_or_spending', 'type', 'amount'])
+    except Exception as e:
+        print(f"Error loading CSV: {e}")
         return pd.DataFrame(columns=['timestamp', 'income_or_spending', 'type', 'amount'])
+
 
 def get_monthly_summary(df):
     income = df[df.income_or_spending == 1].groupby('month').amount.sum().rename('income')
