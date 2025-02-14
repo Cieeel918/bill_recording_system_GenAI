@@ -12,8 +12,8 @@ from io import StringIO
 def prepare_prompt(user_prompt,history_info):
     '''收入多少，各类型支出多少，'''
     df=history_info
-    df['timestamp'] = df['timestamp'].apply(lambda x: datetime.strptime(x, "%Y-%m-%d"))
-    df["month"]=df["timestamp"].apply(lambda x:x.month)
+    # df['timestamp'] = df['timestamp'].apply(lambda x: datetime.strptime(x, "%Y-%m-%d"))
+    # df["month"]=df["timestamp"].apply(lambda x:x.month)
     df_spend = df.groupby(["month","income_or_spending"],as_index=False).agg({"amount":"sum"}).query("""income_or_spending==0""")
     df_income= df.groupby(["month","income_or_spending"],as_index=False).agg({"amount":"sum"}).query("""income_or_spending==1""")
     
