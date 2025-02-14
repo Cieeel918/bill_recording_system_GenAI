@@ -1,4 +1,4 @@
-from flask import Flask, render_template,request
+from flask import Flask, render_template,request,redirect
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,7 +10,8 @@ from functions import *
 from datetime import datetime
 import os
 import dash
-
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 app = Flask(__name__)
@@ -53,7 +54,7 @@ def home():
 
 
 
-dash_app = dash.Dash(__name__, server=app, url_base_pathname='/analysis/')
+dash_app = Dash(__name__, server=app, routes_pathname_prefix='/dash/', requests_pathname_prefix='/dash/')
 
 
 
@@ -122,8 +123,8 @@ dash_app.layout = html.Div([
     [dash.dependencies.Input('month-selector', 'value'),
      dash.dependencies.Input('category-selector', 'value')]
 )
-def update_pie_chart(selected_month, selected_category):
-    df = load_data()
+def update_pie_chart(selected_month, selected_category,CSV_PATH):
+    df = load_data(CSV_PATH)
     if df.empty:
         return {}
 
@@ -140,7 +141,7 @@ def update_pie_chart(selected_month, selected_category):
 
 @app.route('/analysis')
 def analysis():
-    return render_template('analysis.html')
+    return redirect('/dash/')
 
 
 @app.route('/suggestion',methods=["GET","POST"])
@@ -163,5 +164,5 @@ def suggestion():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0', port=5000)
 
